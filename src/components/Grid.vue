@@ -3,13 +3,11 @@
   <ag-grid-vue
     class="ag-theme-alpine"
     style="height: 500px"
-    :columnDefs="columnDefs.value"
-    :rowData="createRandData()"
+    :columnDefs="columnDefs"
+    :rowData="rowData"
     :defaultColDef="defaultColDef"
     rowSelection="multiple"
     animateRows="true"
-    @cell-clicked="cellWasClicked"
-    @grid-ready="onGridReady"
   >
   </ag-grid-vue>
 </template>
@@ -22,28 +20,32 @@ import "ag-grid-community/styles/ag-grid.css"; // Core grid CSS, always needed
 import "ag-grid-community/styles/ag-theme-alpine.css"; // Optional theme CSS
 
 export default {
-  name: "Grid",
+  name: "App",
   components: {
     AgGridVue,
   },
 
-  setup() {
-    const gridApi = ref(null); // Optional - for accessing Grid's API
-
-    // Obtain API from grid's onGridReady event
-    const onGridReady = (params) => {
-      gridApi.value = params.api;
+  data() {
+    return {
+      columnDefs: [],
+      rowData: [],
+      defaultColDef: {
+        sortable: true,
+        filter: true,
+        flex: 1,
+      },
     };
+  },
 
-    const rowData = this.createRandData(); // Set rowData to Array of Objects, one Object per Row
-    // let rowData = reactive({}); // Set rowData to Array of Objects, one Object per Row
+  mounted() {
+    this.setColumns();
 
-    // Each Column Definition results in one Column.
-    const columnDefs = reactive({
-      value: [
-        // { field: "make" },
-        // { field: "model" },
-        // { field: "price" },
+    this.rowData = this.createRandData();
+  },
+
+  methods: {
+    setColumns() {
+      this.columnDefs = [
         { field: "val1" },
         { field: "val2" },
         { field: "val3" },
@@ -52,48 +54,9 @@ export default {
         { field: "val6" },
         { field: "val7" },
         { field: "val8" },
-      ],
-    });
+      ];
+    },
 
-    // DefaultColDef sets props common to all Columns
-    const defaultColDef = {
-      sortable: true,
-      filter: true,
-      flex: 1,
-    };
-
-    // Example load data from sever
-    onMounted(() => {
-      fetch("https://www.ag-grid.com/example-assets/row-data.json")
-        .then((result) => result.json())
-        .then((remoteRowData) => (rowData.value = this.createRandData()));
-    });
-    // onMounted(() => {
-    //   fetch("https://www.ag-grid.com/example-assets/row-data.json")
-    //     .then((result) => result.json())
-    //     .then((remoteRowData) => (rowData.value = remoteRowData));
-    // });
-    // onMounted(() => {
-    //   createRandData();
-    //   rowData = this.createRandData();
-    // });
-    console.log(rowData);
-    return {
-      onGridReady,
-      columnDefs,
-      rowData,
-      defaultColDef,
-      cellWasClicked: (event) => {
-        // Example of consuming Grid Event
-        console.log("cell was clicked", event);
-      },
-      deselectRows: () => {
-        gridApi.value.deselectAll();
-      },
-    };
-  },
-
-  methods: {
     createRandData() {
       function generateRandomString() {
         const characters =
@@ -146,7 +109,7 @@ export default {
           val8: getRanomStringInArr(),
         });
       }
-      console.log(randContent);
+      // console.log(randContent);
       return randContent;
     },
   },
